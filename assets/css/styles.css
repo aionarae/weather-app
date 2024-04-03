@@ -1,0 +1,19 @@
+body {
+  font-family: Arial, sans-serif;
+}
+.container {
+  width: 80%;
+  margin: auto;
+}
+.search-bar {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 20px;
+}
+.city-list {
+  list-style-type: none;
+  padding: 0;
+}
+.city-list li {
+  margin-bottom: 10px;
+}
