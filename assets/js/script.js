@@ -1,76 +1,87 @@
 // Values
+const searchButton = $('.search-button');
 let city;
 let temp;
 let windSpeed;
 let humidity;
-let weatherArray = []
-let weatherData;
+let lastSearchedCity = localStorage.getItem('searchedCities');
+let storedWeather = JSON.parse(localStorage.getItem('storedWeather')) || [];
 
-// Afte clicking on the search button, get the city name from the input field and start API call 
+// API key should be hard coded in the code for this exercise
+const apiKey = '42cd44b4f4caae9205e5f8d0512b939c'
 
-// Store the city name and weather data in localStorage
-$('.search-button').on('click', function() {
-  city = encodeURIComponent($('.search-city').val());
-  let apiKey = encodeURIComponent($('.api-key').val());
+function getWeather() {
 
-
-  console.log('click');
-  console.log(city);
-  console.log(apiKey);
-
+  console.log('searching weather')
+  city = encodeURIComponent($('.search-city').val())
+  console.log(city)
   // Make the API call
-  // const queryURL =  `http://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=imperial&cnt=5`;
-
-  const queryURL = `https://api.openweathermap.org/data/2.5/forecast?q=draper&appid=42cd44b4f4caae9205e5f8d0512b939c&units=imperial&cnt=5`;
-  console.log(queryURL);
+  const queryURL =  `httpsapi.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=imperial&cnt=5`;
 
   fetch(queryURL)
-    .then (response => response.json())
-    .then (data => {
-
-      weatherArray = data.list;
-      console.log(weatherArray);
+    .then (response => {
+      if (response.status !== 200) {
+        console.log('Looks like there was a problem. Status Code: ' + response.status);
+        return
+      }
       
-      temp = data.main.temp;
-      windSpeed = data.wind.speed;
-      humidity = data.main.humidity;
+    response.json()
+    .then (data => {
+      let searchedCity = data.list;
+      console.log("This is the seached city")
+      console.log(searchedCity)
 
-      console.log(data);
-      console.log(data.main.temp);
-      console.log(data.wind.speed);
-      console.log(data.main.humidity);
+      // Store the city name and weather data in localStorage
+      for (let weatherResult of searchedCity) {
+        var cityWeather = {
+          city: city,
+          date: weatherResult.dt_txt,
+          temp: weatherResult.main.temp,
+          humidity: weatherResult.main.humidity,
+          wind: weatherResult.wind.speed,
+        }
+
+        storedWeather.push(cityWeather);
+      }      
+
+      localStorage.setItem('storedWeather', JSON.stringify(cityWeather));
+      console.log("this is the stored weather")
+      console.log(storedWeather)
     })
 
-    for (weatherData of weatherArray) {
-      weatherArray.push(weatherData.main.temp);
-      weatherArray.push(weatherData.wind.speed);
-      weatherArray.push(weatherData.main.humidity);
-      weatherArray.push(weatherData.dt_txt);
+  });
 
-      console.log(weatherData.main.temp);
+}
 
-      
-      
-    }
-    // Convert the array to a string and store it in localStorage
-localStorage.setItem('weatherArray', JSON.stringify(weatherArray));
+// Press enter to search
+// $('.search-city').keypress(function(event) {
+//   if (event.keyCode === 13) {
+//     $('.search-button').click();
+//   }
+// });
 
-// When retrieving the array from localStorage, convert it back to an array
-let storedWeatherArray = JSON.parse(localStorage.getItem('weatherArray'));
+// Click on the search button to search
 
 
+function displayWeather() {
+  var lastWeather = JSON.parse(localStorage.getItem('storedWeather'));
+  console.log("This is the last weather")
+  console.log(lastWeather)
+}
 
+// add a function to run the api call
+// add a function create to store the localstorage and add new div for the list item and weather data
+// add a function to display the weather data on the page
+// when a page is loaded, run things
+$(searchButton).on('click',getWeather)
 
-    console.log(weatherData)
-    
-
-
-    localStorage.setItem('city', city);
+$(document).ready(function () {
+ 
+  $(document).ready(function () {
+    $('.search-button').on('click', function() {
+      console.log('Button was clicked');
+    });
+  });
+  
 });
-
-// Show the city name and weather on the page
-$('.city-name').text(city);
-$('.weather').text(''); // Add the weather data here
-
-
-///needs to be dynamic when page is loaded
+ 
